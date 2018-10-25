@@ -6,38 +6,49 @@
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=open_uboot
+PKG_NAME:=u-boot-eb904-orig
 PKG_VERSION:=2010.06
 PKG_RELEASE:=1
 
-PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/u-boot-$(PKG_VERSION)
+PKG_BUILD_DIR = $(BUILD_DIR)/$(PKG_NAME)
 PKG_SOURCE:=u-boot-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=ftp://ftp.denx.de/pub/u-boot
 PKG_MD5SUM:=cd42bc64b6edafa6930ce299a144503e
 PKG_CAT:=bzcat
-#PKG_TARGETS:=bin
+PKG_TARGETS:=bin
 
 include $(INCLUDE_DIR)/package.mk
 
-ifeq ($(DUMP),)
-  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell grep '^CONFIG_UBOOT_' $(TOPDIR)/.config | md5s)
-endif
+TAR_CMD=$(HOST_TAR) -C $(1) --strip 1 -xf -
+
+#ifeq ($(DUMP),)
+#  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell grep '^CONFIG_UBOOT_' $(TOPDIR)/.config | md5s)
+#endif
   
 define Package/$(PKG_NAME)
 	SECTION:=boot
 	CATEGORY:=Boot Loaders
-	TITLE:=Boot-Loader for VGV952CJW33-E-IR
-	SUBMENU:=u-boot-VGV952CJW33-E-IR
-	DEPENDS:=@TARGET_ifxmips||TARGET_ifxcpe||TARGET_ltqcpe||TARGET_lantiq_xrx200_DEVICE_VGV952CJW33-E-IR
+	TITLE:=Boot-Loader for VGV952CJW33
+	MENU:=1
+	DEPENDS:=@TARGET_ifxmips||TARGET_ifxcpe||TARGET_ltqcpe||TARGET_lantiq_xrx200_DEVICE_lantiq_vgv952cjw33-e-ir
 	URL:=http://www.denx.de/wiki/UBoot/WebHome
 endef
+
+
+define Package/$(PKG_NAME)/description
+This is the U-Boot bootloader for the EasyBox 904 (Arcadyan VGV952CJW33).
+
+It will be build with the U-Boot version and the adaptions as published by
+Arcadyan, plus some changes made for OpenWrt.
+
+endef
+
 
 #define Build/Configure
 #endef
 
-ifdef CONFIG_TARGET_lantiq_xrx200_DEVICE_VGV952CJW33-E-IR
+ifdef CONFIG_TARGET_lantiq_xrx200_DEVICE_lantiq_vgv952cjw33-e-ir
 UBOOT_PLATFORM:=vr9
 endif
 
@@ -66,11 +77,12 @@ define Package/$(PKG_NAME)/config
             depends on PACKAGE_$(PKG_NAME)
             source "$(SOURCE)/config/Kconfig"
     endmenu
+
     ##### 20100726 ctc added to support DT 723 model ######
 	choice
 		depends on PACKAGE_$(PKG_NAME)
 		prompt "Target board"
-		default UBOOT_CONFIG_DT_723
+		default UBOOT_CONFIG_904DSL
 	config UBOOT_CONFIG_XRX200
 		bool "XRX-200 EVM"
 	config UBOOT_CONFIG_DT_723
@@ -107,7 +119,7 @@ define Package/$(PKG_NAME)/config
 	config UBOOT_CONFIG_DUAL_IMAGE
 		depends on PACKAGE_$(PKG_NAME) && ( UBOOT_CONFIG_NAND_FLASH || UBOOT_CONFIG_NOR_FLASH && UBOOT_CONFIG_NOR_FLASH_32M ) && UBOOT_CONFIG_FIRMWARE_IN_ROOTFS
 		bool "dual image"
-		default n
+		default y
 	###################################################
 endef
 

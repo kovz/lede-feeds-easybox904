@@ -442,23 +442,23 @@ config UBOOT_CONFIG_OVERLAY
 	 depends on UBOOT_CONFIG_DRIVER_VR9 || UBOOT_CONFIG_DRIVER_AR9 || UBOOT_CONFIG_DRIVER_DANUBE
 
 if LANTIQ_UBOOT_ar9
-   source package/boot/uboot-lantiq-easybox904xdsl/config/board/ar9/Kconfig
+   source ../board/ar9/Kconfig
 endif
 
 if LANTIQ_UBOOT_danube
-   source package/boot/uboot-lantiq-easybox904xdsl/config/board/danube/Kconfig
+   source ../board/danube/Kconfig
 endif
 
 if LANTIQ_UBOOT_amazon_se
-   source package/boot/uboot-lantiq-easybox904xdsl/config/board/amazon_se/Kconfig
+   source ../board/amazon_se/Kconfig
 endif
 
 if LANTIQ_UBOOT_vr9
-   source package/boot/uboot-lantiq-easybox904xdsl/config/board/vr9/Kconfig
+   source ../board/vr9/Kconfig
 endif
 
 if LANTIQ_UBOOT_ar10
-   source package/boot/uboot-lantiq-easybox904xdsl/config/board/ar10/Kconfig
+   source ../board/ar10/Kconfig
 endif
    
 
@@ -542,7 +542,6 @@ config UBOOT_CONFIG_RAMARGS
 config UBOOT_CONFIG_FLASHARGS
     string "flashargs"
     default "setenv bootargs root=$(rootfsmtd) rw rootfstype=squashfs,jffs2 init=/etc/preinit"
-
 config UBOOT_CONFIG_ADDIP
     string "addip"
     default "setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask):$(hostname):$(netdev):on"
@@ -930,5 +929,5 @@ endif
 
 endmenu
 
-source package/boot/uboot-lantiq-easybox904xdsl/config/lib/Kconfig
-source package/boot/uboot-lantiq-easybox904xdsl/config/common/Kconfig
+source ../lib/Kconfig
+source ../common/Kconfig
