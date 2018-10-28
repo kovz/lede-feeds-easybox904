@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=u-boot-eb904-orig
+PKG_NAME:=u-boot-eb904-vendmod
 PKG_VERSION:=2010.06
 PKG_RELEASE:=1
 
@@ -37,10 +37,10 @@ endef
 
 
 define Package/$(PKG_NAME)/description
-This is the U-Boot bootloader for the EasyBox 904 (Arcadyan VGV952CJW33).
+This is a U-Boot bootloader for the EasyBox 904 (Arcadyan VGV952CJW33).
 
-It will be build with the U-Boot version and the adaptions as published by
-Arcadyan, plus some changes made for OpenWrt.
+It will be built with the U-Boot version and the adaptions as published by
+vendor Arcadyan, with probably some very small changes (by Qauge(?)).
 
 endef
 
@@ -273,23 +273,14 @@ define Build/Configure
         rm -f $(PKG_BUILD_DIR)/.configured*
 endef
 
-define Build/Compile
-	#ln -sdf $(TOPDIR)/../../../wlnsw/wireline_sw_linux26/open_uboot $(PKG_BUILD_DIR)/open_uboot
-	cd $(PKG_BUILD_DIR);chmod a+x ./scripts_platform/*;make clean distclean;make $(UBOOT_PLATFORM)_config;\
-        grep 'CONFIG_UBOOT_' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_UBOOT_\\(.*\\),\\1\\2,g" > $(PKG_BUILD_DIR)/.config;\
-        make oldconfig; make clean all CROSS_COMPILE=$(TARGET_CROSS)
-endef
 
 GPHY_FIRMWARE = $(PKG_BUILD_DIR)/board/vr9/gphy_firmware.img
 
-define Package/$(PKG_NAME)/install
-	mkdir -p $(BIN_DIR)/$(SUBTARGET)/
-	### ctc ###
-#	cp -f $(UBOOT_IMAGE) $(BIN_DIR)/$(SUBTARGET)/
-	if [ -n $(UBOOT_IMAGE) ] ; then \
-		cp -f $(UBOOT_IMAGE) $(BIN_DIR)/$(SUBTARGET)/u-boot.lq ; \
-	fi \
-	###########
+define Build/Compile
+	cd $(PKG_BUILD_DIR);chmod a+x ./scripts_platform/*;make clean distclean;make $(UBOOT_PLATFORM)_config;\
+        grep 'CONFIG_UBOOT_' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_UBOOT_\\(.*\\),\\1\\2,g" > $(PKG_BUILD_DIR)/.config;\
+        make oldconfig; make clean all CROSS_COMPILE=$(TARGET_CROSS)
+
 	# generate u-boot.asc
 	chmod a+x $(PKG_BUILD_DIR)/scripts_platform/gct
 	if [ "$(CONFIG_UBOOT_CONFIG_VR9_DDR1)" = "y" ] ; then \
@@ -298,23 +289,22 @@ define Package/$(PKG_NAME)/install
 	if [ "$(CONFIG_UBOOT_CONFIG_VR9_DDR2)" = "y" ] ; then \
 		$(PKG_BUILD_DIR)/scripts_platform/gct $(PKG_BUILD_DIR)/board/vr9/xrx200_ddr2_197_CAS4_config.conf $(PKG_BUILD_DIR)/u-boot.srec $(PKG_BUILD_DIR)/u-boot.asc ; \
 	fi
-	cp -f $(PKG_BUILD_DIR)/u-boot           $(BIN_DIR)/$(SUBTARGET)/u-boot.elf
-	cp -f $(PKG_BUILD_DIR)/u-boot.asc       $(BIN_DIR)/$(SUBTARGET)/u-boot.asc
-	cp -f $(PKG_BUILD_DIR)/u-boot.bin       $(BIN_DIR)/$(SUBTARGET)/u-boot.bin
-	if [ "$(CONFIG_UBOOT_CONFIG_BOOT_FROM_NAND)" = "y" ] ; then \
-		cp -f $(BIN_DIR)/$(SUBTARGET)/u-boot.lq   $(BIN_DIR)/$(SUBTARGET)/u-boot.lq.pad.128k ;	\
-		cp -f $(BIN_DIR)/$(SUBTARGET)/u-boot.lq   $(BIN_DIR)/$(SUBTARGET)/u-boot.lq.pad.256k ;	\
-		$(PKG_BUILD_DIR)/scripts_platform/pad2align.sh -n 131072 $(BIN_DIR)/$(SUBTARGET)/u-boot.lq.pad.128k >& /dev/null ; \
-		$(PKG_BUILD_DIR)/scripts_platform/pad2align.sh -n 262144 $(BIN_DIR)/$(SUBTARGET)/u-boot.lq.pad.256k >& /dev/null ; \
-	fi
-	#
+
 	if [ -f $(GPHY_FIRMWARE) ] ; then \
 		cp -f $(PKG_BUILD_DIR)/u-boot.bin -f $(PKG_BUILD_DIR)/u-boot.bin.phy ; \
 		$(PKG_BUILD_DIR)/scripts_platform/pad2align.sh -n 65536 $(PKG_BUILD_DIR)/u-boot.bin.phy >& /dev/null ; \
 		cat $(GPHY_FIRMWARE) >> $(PKG_BUILD_DIR)/u-boot.bin.phy ; \
-		cp -f $(PKG_BUILD_DIR)/u-boot.bin.phy $(BIN_DIR)/$(SUBTARGET)/u-boot.bin.phy ; \
 	fi
-	#
+endef
+
+define Package/$(PKG_NAME)/install
+	$(CP)		$(PKG_BUILD_DIR)/u-boot.asc		$(1)/
+	$(CP)		$(PKG_BUILD_DIR)/u-boot-nand.bin	$(1)/u-boot.lq
+
+	# $(CP)		$(PKG_BUILD_DIR)/u-boot			$(1)/u-boot.elf
+	# $(CP)		$(PKG_BUILD_DIR)/u-boot.bin		$(1)/
+	# $(CP)		$(PKG_BUILD_DIR)/u-boot.bin.phy		$(1)/
+
 	# change GPHY FW ADDR to 0xB0010000 for NOR flash u-boot.lq without NAND support
 	# change GPHY FW ADDR to 0xB0020000 for NOR flash u-boot.lq with NAND support
 	# change GPHY FW ADDR to 0xA0120000 for NAND flash u-boot.lq (0xA0100000 + GPHY_FW_offset - 0x4000) 
@@ -323,5 +313,6 @@ define Package/$(PKG_NAME)/install
 	# change BOOTSTRAP TEXT BASE to 0xB0000000 for NOR flash u-boot.lq
 	# change BOOTSTRAP TEXT BASE to 0xA0100000 for NAND flash u-boot.lq
 endef
+
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
