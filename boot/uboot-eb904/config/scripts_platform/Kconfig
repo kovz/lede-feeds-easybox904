@@ -155,6 +155,7 @@ config UBOOT_CONFIG_SW_VERSION
 
 config UBOOT_CONFIG_DEBUG
     bool "VERBOSE"
+	default y
 
 endmenu
 
@@ -509,7 +510,7 @@ config UBOOT_CONFIG_PHYM
 
 config UBOOT_CONFIG_BOOTDELAY
     int "BOOTDELAY(seconds)"
-	default 1
+	default 3
 
 config UBOOT_CONFIG_ROOT_PATH
     string "rootpath"
@@ -908,7 +909,7 @@ config UBOOT_CONFIG_RESET_DDR_CONFIG
 
 config UBOOT_CONFIG_SW_VERSION
     string "sw_version"
-	default "AT904X-03.10"
+	default "AT904X-03.10-arny1"
 
 config UBOOT_CONFIG_HW_VERSION
     string "hw_version"

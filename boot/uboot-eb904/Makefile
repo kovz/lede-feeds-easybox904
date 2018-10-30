@@ -40,7 +40,14 @@ define Package/$(PKG_NAME)/description
 This is a U-Boot bootloader for the EasyBox 904 (Arcadyan VGV952CJW33).
 
 It will be built with the U-Boot version and the adaptions as published by
-vendor Arcadyan, with probably some very small changes (by Qauge(?)).
+vendor Arcadyan, plus these changes made for OpenWrt:
+
+- When accessing the U-Boot prompt, there is no longer a password question.
+- U-Boot's environment variable "bootnum" is no longer changed in flash before
+  booting a system. This avoids stressing the environment region in flash.
+- The recovery procedure (reset button pressed during power-on) also accepts an
+  "initramfs" image. This starts a purely RAM based OpenWrt without flashing
+  anything. The initramfs file must be renamed to "fullimage.img", of course.
 
 endef
 
