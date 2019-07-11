@@ -23,7 +23,7 @@ define KernelPackage/fbtft-eb904
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=EasyBox 904 display support
 # Include kmod-fbcon in case the display should be used for console output
-  DEPENDS:=@(TARGET_lantiq_xrx200_DEVICE_lantiq_vgv952cjw33-e-ir) +kmod-fb +kmod-fb-sys-fops
+  DEPENDS:=@(TARGET_lantiq_xrx200_DEVICE_lantiq_vgv952cjw33-e-ir || TARGET_lantiq_xrx200_DEVICE_lantiq_mrl952akw33-e-ir) +kmod-fb +kmod-fb-sys-fops
   
   KCONFIG:= \
   	CONFIG_STAGING=y \
